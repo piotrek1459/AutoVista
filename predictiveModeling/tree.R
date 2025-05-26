@@ -87,7 +87,12 @@ dev.off()
 ## 7b. variable-importance bar plot
 vip <- varImp(tree_mod)$importance
 vip$Feature <- rownames(vip)
-
+vip <- vip %>% 
+  mutate(keep = Overall >= 0.05 * max(Overall)) %>%  # ≥5 % of max
+  arrange(desc(Overall)) %>% 
+  mutate(rank = row_number()) %>% 
+  filter(keep | rank <= 15)   
+  
 vip_plot <- ggplot(vip,
                    aes(x = reorder(Feature, Overall), y = Overall)) +
   geom_col(fill = "steelblue") +
